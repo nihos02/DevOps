@@ -1,2 +1,221 @@
-These are the DevOps notes.
-More deployment details to be added.
+# DevOps Notes: Linux, Git, Jenkins, AWS
+
+## 1. Linux Commands
+
+### 1.1 File and Directory Management
+| Command | Description | Example |
+| --- | --- | --- |
+| `pwd` | Print the current working directory | `pwd` |
+| `ls` | List files in the current directory | `ls -l` (long listing) |
+| `cd` | Change directory | `cd /var/log` |
+| `mkdir` | Create a new directory | `mkdir project` |
+| `rmdir` | Remove an empty directory | `rmdir old_dir` |
+| `cp` | Copy files/directories | `cp source.txt dest.txt` |
+| `mv` | Move or rename files/directories | `mv old.txt new.txt` |
+| `rm` | Remove files/directories | `rm -r temp/` (recursive) |
+| `touch` | Create empty files / update timestamps | `touch file.txt` |
+
+### 1.2 File Viewing & Manipulation
+| Command | Description | Example |
+| --- | --- | --- |
+| `cat` | Concatenate or display file contents | `cat file.txt` |
+| `more` / `less` | View file contents page by page | `less file.log` |
+| `head` / `tail` | Display start or end of a file | `tail -n 50 file.log` |
+| `grep` | Search for patterns in text | `grep "error" file.log` |
+| `awk` | Text processing and pattern scanning | `awk '{print $1}' data.txt` |
+| `sed` | Stream editor for text transformation | `sed 's/old/new/g' file.txt` |
+| `wc` | Count lines, words, characters | `wc -l file.txt` |
+| `sort` / `uniq` | Sort or remove duplicate lines | `sort file.txt` |
+
+### 1.3 File Permissions
+| Command | Description | Example |
+| --- | --- | --- |
+| `chmod` | Change file permissions | `chmod 755 script.sh` |
+| `chown` | Change file owner | `chown user file.txt` |
+| `chgrp` | Change file group | `chgrp developers file.txt` |
+| `umask` | Set default file permissions | `umask 022` |
+
+### 1.4 System Information
+| Command | Description | Example |
+| --- | --- | --- |
+| `uname -a` | System information | `uname -a` |
+| `df -h` | Disk usage | `df -h` |
+| `du -sh` | Directory size | `du -sh /var` |
+| `ps aux` | List running processes | `ps aux` |
+| `top` / `htop` | Interactive process viewer | `top` |
+| `free -m` | Memory usage | `free -m` |
+
+### 1.5 Networking
+| Command | Description | Example |
+| --- | --- | --- |
+| `ifconfig` / `ip addr` | Network interface info | `ip addr show` |
+| `ping` | Test network connectivity | `ping google.com` |
+| `netstat` / `ss` | Network connections | `ss -tuln` |
+| `scp` | Secure copy over SSH | `scp file user@host:/path` |
+
+---
+
+## 2. Git Commands
+
+### 2.1 Configuration
+| Command | Description | Example |
+| --- | --- | --- |
+| `git config --global user.name` | Set user name | `git config --global user.name "Alice"` |
+| `git config --global user.email` | Set email | `git config --global user.email "alice@example.com"` |
+
+### 2.2 Repository Initialization
+| Command | Description | Example |
+| --- | --- | --- |
+| `git init` | Initialize repo | `git init` |
+| `git clone` | Clone an existing repo | `git clone https://github.com/user/repo.git` |
+
+### 2.3 Basic Workflow
+| Command | Description | Example |
+| --- | --- | --- |
+| `git status` | Show repo state | `git status` |
+| `git add` | Stage changes | `git add file.txt` |
+| `git commit` | Commit staged changes | `git commit -m "message"` |
+| `git push` | Upload commits to remote | `git push origin main` |
+| `git pull` | Fetch and merge from remote | `git pull` |
+| `git fetch` | Fetch without merge | `git fetch origin` |
+
+### 2.4 Branching & Merging
+| Command | Description | Example |
+| --- | --- | --- |
+| `git branch` | List branches | `git branch -a` |
+| `git branch new-feature` | Create branch | `git branch new-feature` |
+| `git checkout` | Switch branch | `git checkout new-feature` |
+| `git merge` | Merge branches | `git merge main` |
+| `git rebase` | Rebase branch | `git rebase main` |
+| `git cherry-pick` | Apply a specific commit | `git cherry-pick <commit>` |
+
+### 2.5 History & Diffs
+| Command | Description | Example |
+| --- | --- | --- |
+| `git log` | Commit history | `git log --oneline` |
+| `git show` | Show commit details | `git show <commit>` |
+| `git diff` | Compare changes | `git diff` |
+| `git blame` | Who changed what line | `git blame file.txt` |
+
+---
+
+## 3. Jenkins
+
+### 3.1 Core Concepts
+- **Jenkins**: Open-source automation server for Continuous Integration (CI) and Continuous Delivery (CD).
+- **Jobs/Projects**: Units of work to run build/test/deploy tasks.
+- **Plugins**: Extend Jenkins functionality (SCM integration, pipeline steps, etc.).
+- **Nodes/Agents**: Machines Jenkins uses to run jobs.
+- **Pipeline**: A suite of plugins to define automated workflows as code.
+
+### 3.2 Key Jenkins Components
+1. **Master/Controller**: Manages configuration and orchestrates builds.
+2. **Agents/Slaves**: Execute tasks; can be on remote machines.
+3. **Jenkinsfile**: Script (often in Groovy) stored with source code describing the pipeline.
+
+### 3.3 Jenkins Pipeline Basics
+- **Declarative Pipeline** (simplified syntax)
+```groovy
+pipeline {
+  agent any
+  stages {
+    stage('Build') {
+      steps { sh 'make build' }
+    }
+    stage('Test') {
+      steps { sh 'make test' }
+    }
+    stage('Deploy') {
+      steps { sh 'make deploy' }
+    }
+  }
+}
+```
+- **Scripted Pipeline** (flexible but more complex)
+```groovy
+node {
+  stage('Checkout') { checkout scm }
+  stage('Build') { sh 'make build' }
+  stage('Test') { sh 'make test' }
+}
+```
+- **Stages** and **Steps**: Stages define phases (build/test/deploy). Steps are actions executed in stages.
+
+### 3.4 Common Plugins
+- **Git Plugin**: integrates with Git repositories.
+- **Pipeline Plugin**: enables Jenkinsfile support.
+- **Blue Ocean**: modern UI for visualizing pipelines.
+- **Credentials Binding**: securely manage secrets.
+
+### 3.5 Continuous Integration Tips
+- Keep Jenkinsfile under version control.
+- Use parameterized builds for reusability.
+- Integrate with tools like Slack or email for notifications.
+- Use Docker or container agents for reproducible builds.
+
+---
+
+## 4. AWS (Amazon Web Services)
+
+### 4.1 Core Services
+| Service | Description |
+| --- | --- |
+| **EC2** (Elastic Compute Cloud) | Virtual servers in the cloud |
+| **S3** (Simple Storage Service) | Object storage for files and backups |
+| **RDS** (Relational Database Service) | Managed relational databases |
+| **Lambda** | Serverless compute functions |
+| **VPC** (Virtual Private Cloud) | Networking and isolation in the cloud |
+| **IAM** (Identity and Access Management) | Users, roles, and permissions |
+| **CloudWatch** | Monitoring and logging |
+| **ELB** (Elastic Load Balancing) | Distributes traffic across instances |
+| **ECS/EKS** | Container orchestration (ECS for AWS-native, EKS for Kubernetes) |
+
+### 4.2 IAM Fundamentals
+- **Users**: Represent individuals or applications; can have credentials.
+- **Groups**: Collections of users sharing permissions.
+- **Roles**: Assign permissions to AWS services or other accounts.
+- **Policies**: JSON documents defining permissions.
+
+Example IAM policy snippet:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::mybucket/*"
+    }
+  ]
+}
+```
+
+### 4.3 AWS CLI Basics
+| Command | Description | Example |
+| --- | --- | --- |
+| `aws configure` | Set up credentials | `aws configure` |
+| `aws s3 ls` | List S3 buckets | `aws s3 ls` |
+| `aws ec2 describe-instances` | List EC2 instances | `aws ec2 describe-instances` |
+| `aws lambda invoke` | Invoke Lambda function | `aws lambda invoke --function-name myFn output.json` |
+
+### 4.4 Architecture & Best Practices
+- **Use multiple Availability Zones** for high availability.
+- **Leverage Auto Scaling** for dynamic resource management.
+- **Least Privilege**: grant only necessary permissions via IAM.
+- **Monitoring and Logging** with CloudWatch, CloudTrail, and AWS Config.
+- **Cost management** with budgets and tagging.
+
+### 4.5 Common Deployment Patterns
+- **Lift and Shift**: Move existing applications to EC2.
+- **Serverless**: Use Lambda + API Gateway + DynamoDB.
+- **Containerized**: Use ECS/EKS with Fargate or EC2.
+- **Hybrid Cloud**: Combine on-premise with AWS via Direct Connect.
+
+---
+
+## Summary
+- **Linux**: Master file manipulation, permissions, system processes, and networking commands.
+- **Git**: Understand configuration, branching, merging, history, and best practices.
+- **Jenkins**: Learn core concepts, pipeline as code, and plugin ecosystem.
+- **AWS**: Know foundational services (compute, storage, networking), IAM, CLI, and architecture best practices.
+
